@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Add Project Details | Sayantika Events</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f1f5f9;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      max-width: 800px;
+      margin: auto;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    h2 {
+      background-color: #007acc;
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+      text-align: center;
+      text-transform: uppercase;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input, select {
+      width: 100%;
+      padding: 6px;
+      margin-top: 4px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    .row {
+      display: flex;
+      gap: 20px;
+      margin-top: 10px;
+    }
+    .row > div {
+      flex: 1;
+    }
+    .submit-btn {
+      text-align: center;
+      margin-top: 20px;
+    }
+    button {
+      padding: 10px 25px;
+      font-size: 16px;
+      background-color: #007acc;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Add Project Details</h2>
+    <form id="projectForm">
+      <label>Project Number</label>
+      <input type="text" name="Project Number" required />
+
+      <div class="row">
+        <div>
+          <label>Event Date</label>
+          <input type="date" name="Event Date" required />
+        </div>
+        <div>
+          <label>Client Name</label>
+          <input type="text" name="Client Name" required />
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Site Name</label>
+          <input type="text" name="Site Name" required />
+        </div>
+        <div>
+          <label>Site Location</label>
+          <input type="text" name="Site Location" required />
+        </div>
+      </div>
+
+      <h2>Required Staff</h2>
+
+      <div class="row">
+        <div>
+          <label>Female Guest Welcoming</label>
+          <select name="Female Guest Welcoming"></select>
+
+          <label>Female Shadow Service</label>
+          <select name="Female Shadow Service"></select>
+
+          <label>Female Servicing</label>
+          <select name="Female Servicing"></select>
+
+          <label>Female Total</label>
+          <input type="number" name="Female Total" readonly />
+        </div>
+        <div>
+          <label>Male Guest Welcoming</label>
+          <select name="Male Guest Welcoming"></select>
+
+          <label>Male Shadow Service</label>
+          <select name="Male Shadow Service"></select>
+
+          <label>Male Servicing</label>
+          <select name="Male Servicing"></select>
+
+          <label>Male Total</label>
+          <input type="number" name="Male Total" readonly />
+        </div>
+      </div>
+
+      <label>Total Headcount</label>
+      <input type="number" name="Total Headcount" readonly />
+
+      <div class="submit-btn">
+        <button type="submit">Submit Project</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    const form = document.getElementById("projectForm");
+    const scriptURL = "https://script.google.com/macros/s/AKfycbxGPtXF4Nvmei5vVLIhwfQTItMNjPhM7R_zGeqkhE35mBYkfYSLJ_0_xchvBUJ6J8xs/exec"; // Replace this!
+
+    const femaleFields = ["Female Guest Welcoming", "Female Shadow Service", "Female Servicing"];
+    const maleFields = ["Male Guest Welcoming", "Male Shadow Service", "Male Servicing"];
+
+    // Populate dropdowns
+    const populateDropdowns = () => {
+      [...femaleFields, ...maleFields].forEach(field => {
+        const select = form.elements[field];
+        for (let i = 0; i <= 50; i++) {
+          const option = document.createElement("option");
+          option.value = i;
+          option.textContent = i;
+          select.appendChild(option);
+        }
+        select.value = "0";
+      });
+    };
+
+    const updateTotals = () => {
+      const femaleTotal = femaleFields.reduce((sum, field) => sum + parseInt(form.elements[field].value), 0);
+      const maleTotal = maleFields.reduce((sum, field) => sum + parseInt(form.elements[field].value), 0);
+      form.elements["Female Total"].value = femaleTotal;
+      form.elements["Male Total"].value = maleTotal;
+      form.elements["Total Headcount"].value = femaleTotal + maleTotal;
+    };
+
+    populateDropdowns();
+    [...femaleFields, ...maleFields].forEach(field => {
+      form.elements[field].addEventListener("change", updateTotals);
+    });
+
+    form.addEventListener("submit", e => {
+      e.preventDefault();
+      updateTotals();
+
+      const formData = new FormData(form);
+      fetch(scriptURL, { method: "POST", body: formData })
+        .then(() => {
+          alert("Project submitted successfully!");
+          form.reset();
+          updateTotals();
+        })
+        .catch(error => {
+          alert("Error! Project not submitted.");
+          console.error("Error:", error.message);
+        });
+    });
+  </script>
+</body>
+</html>
